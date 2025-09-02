@@ -1,9 +1,12 @@
 Metadata-Version: 2.4
 Name: dfpeek
-Version: 0.1.3
+Version: 0.1.4
 Summary: Peek into a dataframe from the command line
 Author-email: Dylan Walker <dylan.travis.walker@gmail.com>
 License: MIT License
+Project-URL: Homepage, https://github.com/dylanwalker/dfpeek
+Project-URL: Repository, https://github.com/dylanwalker/dfpeek
+Project-URL: Issues, https://github.com/dylanwalker/dfpeek/issues
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
