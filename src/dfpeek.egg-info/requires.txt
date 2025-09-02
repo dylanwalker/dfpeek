@@ -1,0 +1,7 @@
+pandas
+
+[excel]
+openpyxl
+
+[parquet]
+pyarrow

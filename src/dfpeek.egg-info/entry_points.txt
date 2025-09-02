@@ -1,0 +1,2 @@
+[console_scripts]
+dfpeek = dfpeek.__main__:main

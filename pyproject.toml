@@ -1,0 +1,22 @@
+[project]
+name = "dfpeek"
+version = "0.1.3"
+description = "Peek into a dataframe from the command line"
+authors = [{ name="Dylan Walker", email="dylan.travis.walker@gmail.com" }]
+readme = "README.md"
+license = {text = "MIT License"}
+dependencies = ["pandas"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.optional-dependencies]
+parquet = ["pyarrow"]
+excel = ["openpyxl"]
+
+[project.scripts]
+dfpeek = "dfpeek.__main__:main"

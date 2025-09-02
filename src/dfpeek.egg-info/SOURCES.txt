@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/dfpeek/__main__.py
+src/dfpeek.egg-info/PKG-INFO
+src/dfpeek.egg-info/SOURCES.txt
+src/dfpeek.egg-info/dependency_links.txt
+src/dfpeek.egg-info/entry_points.txt
+src/dfpeek.egg-info/requires.txt
+src/dfpeek.egg-info/top_level.txt
+tests/test_cli.py
+tests/test_core.py
