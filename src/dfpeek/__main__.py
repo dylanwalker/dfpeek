@@ -3,20 +3,38 @@ import pandas as pd
 import argparse
 import sys
 
-def load_df(path, delimiter=None, excel_sheet=None, excel_skiprows=None):
-    if path.endswith('.feather'):
-        return pd.read_feather(path)
+def load_df(path, delimiter=None, excel_sheet=None, excel_skiprows=None, force_format=None):
+    # Use forced format if specified, otherwise infer from extension
+    if force_format:
+        format_type = force_format.lower()
+    elif path.endswith('.feather'):
+        format_type = 'feather'
     elif path.endswith('.csv'):
-        return pd.read_csv(path, delimiter=delimiter)
+        format_type = 'csv'
     elif path.endswith('.tsv'):
-        return pd.read_csv(path, delimiter='\t')
+        format_type = 'tsv'
     elif path.endswith('.parquet'):
-        return pd.read_parquet(path)
+        format_type = 'parquet'
     elif path.endswith('.xlsx'):
+        format_type = 'excel'
+    else:
+        print("Unsupported file format. Use -f to specify format explicitly.")
+        sys.exit(1)
+    
+    # Load based on format type
+    if format_type == 'feather':
+        return pd.read_feather(path)
+    elif format_type == 'csv':
+        return pd.read_csv(path, delimiter=delimiter)
+    elif format_type == 'tsv':
+        return pd.read_csv(path, delimiter='\t')
+    elif format_type == 'parquet':
+        return pd.read_parquet(path)
+    elif format_type in ['excel', 'xlsx']:
         sheet = excel_sheet - 1 if excel_sheet is not None else 0  # Convert 1-based to 0-based indexing
         return pd.read_excel(path, sheet_name=sheet, skiprows=excel_skiprows)
     else:
-        print("Unsupported file format.")
+        print(f"Unsupported format: {format_type}. Supported: csv, tsv, excel, parquet, feather")
         sys.exit(1)
 
 
@@ -80,6 +98,7 @@ def print_info(df):
 def main():
     parser = argparse.ArgumentParser(description='Peek at tabular data files easily.')
     parser.add_argument('datafile', type=str, help='Path to data file')
+    parser.add_argument('-f', type=str, default=None, help='Force file format (csv, tsv, excel, parquet, feather)')
     parser.add_argument('-d', type=str, default=None, help='Delimiter for CSV/TSV')
     parser.add_argument('-xs', type=int, default=None, help='Excel sheet number (1-based)')
     parser.add_argument('-xr', type=int, default=None, help='Excel number of rows to skip')
@@ -94,7 +113,7 @@ def main():
     parser.add_argument('-i', action='store_true', help='Show file info')
     args = parser.parse_args()
 
-    df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr)
+    df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr, force_format=args.f)
 
     if args.i:
         print_info(df)
