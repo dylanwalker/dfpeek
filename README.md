@@ -105,6 +105,12 @@ Use a specific Excel sheet (e.g., the 3rd sheet):
 dfpeek data.xlsx -xs 3 -h 10
 ```
 
+Skip the first 2 rows of an excel file:
+```powershell
+dfpeek data.xlsx -xr 2 
+```
+
+
 ## Supported Formats
 - CSV (.csv)
 - TSV (.tsv)
