@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 import sys
 
-def load_df(path, delimiter=None):
+def load_df(path, delimiter=None, excel_sheet=None):
     if path.endswith('.feather'):
         return pd.read_feather(path)
     elif path.endswith('.csv'):
@@ -13,7 +13,8 @@ def load_df(path, delimiter=None):
     elif path.endswith('.parquet'):
         return pd.read_parquet(path)
     elif path.endswith('.xlsx'):
-        return pd.read_excel(path)
+        sheet = excel_sheet - 1 if excel_sheet is not None else 0  # Convert 1-based to 0-based indexing
+        return pd.read_excel(path, sheet_name=sheet)
     else:
         print("Unsupported file format.")
         sys.exit(1)
@@ -80,6 +81,7 @@ def main():
     parser = argparse.ArgumentParser(description='Peek at tabular data files easily.')
     parser.add_argument('datafile', type=str, help='Path to data file')
     parser.add_argument('-d', type=str, default=None, help='Delimiter for CSV/TSV')
+    parser.add_argument('-xs', type=int, default=None, help='Excel sheet number (1-based)')
     parser.add_argument('-H', type=int, default=None, help='Show first N rows')
     parser.add_argument('-T', type=int, default=None, help='Show last N rows')
     parser.add_argument('-R', nargs=2, type=int, default=None, metavar=('START', 'END'), help='Show rows in range START to END (zero-based, END exclusive)')
@@ -91,7 +93,7 @@ def main():
     parser.add_argument('-i', action='store_true', help='Show file info')
     args = parser.parse_args()
 
-    df = load_df(args.datafile, delimiter=args.d)
+    df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs)
 
     if args.i:
         print_info(df)

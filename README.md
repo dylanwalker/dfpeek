@@ -38,6 +38,7 @@ dfpeek <datafile> [options]
 | `-l`           | List column names                                        |
 | `-i`           | Show file info (rows, columns, memory usage)             |
 | `-d DELIM`     | Set delimiter for CSV/TSV files (e.g., `,` or `\t`)      |
+| `-xs N`        | Select Excel sheet N (1-based indexing)                  |
 
 All options can be chained in any order.
 
@@ -96,6 +97,11 @@ dfpeek data.csv
 Use a custom delimiter (e.g., tab):
 ```powershell
 dfpeek data.tsv -d "\t" -h 5
+```
+
+Use a specific Excel sheet (e.g., the 3rd sheet):
+```powershell
+dfpeek data.xlsx -xs 3 -h 10
 ```
 
 ## Supported Formats
