@@ -39,6 +39,7 @@ dfpeek <datafile> [options]
 | `-i`           | Show file info (rows, columns, memory usage)             |
 | `-d DELIM`     | Set delimiter for CSV/TSV files (e.g., `,` or `\t`)      |
 | `-xs N`        | Select Excel sheet N (1-based indexing)                  |
+| `-xr N`        | Skip first N rows                                        |
 
 All options can be chained in any order.
 
