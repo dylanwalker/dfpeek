@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: dfpeek
-Version: 0.1.5
+Version: 0.1.6
 Summary: Peek into a dataframe from the command line
 Author-email: Dylan Walker <dylan.travis.walker@gmail.com>
 License: MIT License
@@ -60,6 +60,7 @@ dfpeek <datafile> [options]
 | `-i`           | Show file info (rows, columns, memory usage)             |
 | `-d DELIM`     | Set delimiter for CSV/TSV files (e.g., `,` or `\t`)      |
 | `-xs N`        | Select Excel sheet N (1-based indexing)                  |
+| `-xr N`        | Skip first N rows                                        |
 
 All options can be chained in any order.
 
@@ -124,6 +125,12 @@ Use a specific Excel sheet (e.g., the 3rd sheet):
 ```powershell
 dfpeek data.xlsx -xs 3 -h 10
 ```
+
+Skip the first 2 rows of an excel file:
+```powershell
+dfpeek data.xlsx -xr 2 
+```
+
 
 ## Supported Formats
 - CSV (.csv)

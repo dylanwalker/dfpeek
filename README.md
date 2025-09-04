@@ -28,9 +28,9 @@ dfpeek <datafile> [options]
 
 | Option         | Description                                              |
 |----------------|---------------------------------------------------------|
-| `-h N`         | Show first N rows                                        |
-| `-t N`         | Show last N rows                                         |
-| `-r START END` | Show rows in range START to END (zero-based, END excl.)  |
+| `-H N`         | Show first N rows                                        |
+| `-T N`         | Show last N rows                                         |
+| `-R START END` | Show rows in range START to END (zero-based, END excl.)  |
 | `-u COL`       | Show unique values for column COL                        |
 | `-c COL`       | Show info about column COL (type, nulls, etc.)           |
 | `-v COL`       | Show value counts for column COL                         |
