@@ -1,5 +1,0 @@
-Error in loc expression ''df.age': unterminated string literal (detected at line 1) (<string>, line 1)
-Examples:
-  Rows: '0:5', 'df.age > 25', 'df.name == "Alice"'
-  Columns: ':, "name"', ':, ["name", "age"]'
-  Both: '0:5, "name":"city"', 'df.age > 25, ["name", "status"]'
