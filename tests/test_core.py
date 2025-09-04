@@ -1,6 +1,8 @@
 import pandas as pd
 import pytest
-from dfpeek.__main__ import print_head, print_tail, print_range, print_unique, print_colinfo, print_value_counts, print_stats
+from dfpeek.__main__ import (print_head, print_tail, print_range, print_loc, print_iloc, 
+                            print_unique, print_colinfo, print_value_counts, print_stats, 
+                            print_columns, print_info, load_df)
 
 @pytest.fixture
 def df():

@@ -40,26 +40,14 @@ def load_df(path, delimiter=None, excel_sheet=None, excel_skiprows=None, force_f
 
 
 def print_head(df, n):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
     print(df.head(n))
-    pd.reset_option('display.max_rows')
-    pd.reset_option('display.max_columns')
 
 
 def print_tail(df, n):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
     print(df.tail(n))
-    pd.reset_option('display.max_rows')
-    pd.reset_option('display.max_columns')
 
 def print_range(df, start, end):
-    pd.set_option('display.max_rows', None)
-    pd.set_option('display.max_columns', None)
     print(df.iloc[start:end])
-    pd.reset_option('display.max_rows')
-    pd.reset_option('display.max_columns')
 
 def print_loc(df, locstring):
     """Execute df.loc[locstring] safely"""
@@ -78,11 +66,7 @@ def print_loc(df, locstring):
             subset = df.loc[eval(locstring)]
         
         # Print with full display options
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
         print(subset)
-        pd.reset_option('display.max_rows')
-        pd.reset_option('display.max_columns')
         
     except Exception as e:
         print(f"Error in loc expression '{locstring}': {e}")
@@ -94,8 +78,20 @@ def print_loc(df, locstring):
 def print_iloc(df, ilocstring):
     """Execute df.iloc[ilocstring] safely"""
     try:
-        # Evaluate the iloc expression
-        subset = df.iloc[eval(ilocstring)]
+        # Handle slice notation by converting to proper Python syntax
+        if ':' in ilocstring and not ilocstring.startswith('[') and ',' not in ilocstring:
+            # Simple slice like '0:5' -> slice(0, 5)
+            parts = ilocstring.split(':')
+            if len(parts) == 2:
+                start = int(parts[0]) if parts[0] else None
+                end = int(parts[1]) if parts[1] else None
+                subset = df.iloc[start:end]
+            else:
+                # More complex slice, evaluate normally
+                subset = df.iloc[eval(ilocstring)]
+        else:
+            # Evaluate the iloc expression normally
+            subset = df.iloc[eval(ilocstring)]
         
         # Print with full display options
         pd.set_option('display.max_rows', None)
@@ -168,6 +164,8 @@ def main():
     args = parser.parse_args()
 
     terminal_size = shutil.get_terminal_size((80, 24))
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
     pd.set_option('display.width', terminal_size.columns)
 
     df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr, force_format=args.f)
