@@ -1,4 +1,5 @@
 
+import shutil
 import pandas as pd
 import argparse
 import sys
@@ -45,6 +46,7 @@ def print_head(df, n):
     pd.reset_option('display.max_rows')
     pd.reset_option('display.max_columns')
 
+
 def print_tail(df, n):
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -58,6 +60,56 @@ def print_range(df, start, end):
     print(df.iloc[start:end])
     pd.reset_option('display.max_rows')
     pd.reset_option('display.max_columns')
+
+def print_loc(df, locstring):
+    """Execute df.loc[locstring] safely"""
+    try:
+        # Replace 'df.' with the actual dataframe variable in the expression
+        # This allows expressions like 'df.somecol=="somestring"'
+        if 'df.' in locstring:
+            # Create a safe namespace with only the dataframe
+            namespace = {'df': df}
+            # Evaluate the expression
+            result = eval(locstring, {"__builtins__": {}}, namespace)
+            # Apply the result to df.loc
+            subset = df.loc[result]
+        else:
+            # Direct indexing like '0:5', ':10', etc.
+            subset = df.loc[eval(locstring)]
+        
+        # Print with full display options
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        print(subset)
+        pd.reset_option('display.max_rows')
+        pd.reset_option('display.max_columns')
+        
+    except Exception as e:
+        print(f"Error in loc expression '{locstring}': {e}")
+        print("Examples:")
+        print("  Rows: '0:5', 'df.age > 25', 'df.name == \"Alice\"'")
+        print("  Columns: ':, \"name\"', ':, [\"name\", \"age\"]'")
+        print("  Both: '0:5, \"name\":\"city\"', 'df.age > 25, [\"name\", \"status\"]'")
+
+def print_iloc(df, ilocstring):
+    """Execute df.iloc[ilocstring] safely"""
+    try:
+        # Evaluate the iloc expression
+        subset = df.iloc[eval(ilocstring)]
+        
+        # Print with full display options
+        pd.set_option('display.max_rows', None)
+        pd.set_option('display.max_columns', None)
+        print(subset)
+        pd.reset_option('display.max_rows')
+        pd.reset_option('display.max_columns')
+        
+    except Exception as e:
+        print(f"Error in iloc expression '{ilocstring}': {e}")
+        print("Examples:")
+        print("  Rows: '0:5', '[0,2,4]', '0:10:2'")
+        print("  Columns: ':, 0', ':, [0,2]', ':, 0:3'")
+        print("  Both: '0:5, 0:3', '[0,2,4], [1,3]'")
 
 def print_unique(df, col):
     if col not in df.columns:
@@ -105,6 +157,8 @@ def main():
     parser.add_argument('-H', type=int, default=None, help='Show first N rows')
     parser.add_argument('-T', type=int, default=None, help='Show last N rows')
     parser.add_argument('-R', nargs=2, type=int, default=None, metavar=('START', 'END'), help='Show rows in range START to END (zero-based, END exclusive)')
+    parser.add_argument('-L', type=str, default=None, help='Perform df.loc[expression] (e.g., "0:5", "df.age > 25")')
+    parser.add_argument('-I', type=str, default=None, help='Perform df.iloc[expression] (e.g., "0:5", "[0,2,4]")')
     parser.add_argument('-u', type=str, default=None, help='Show unique values for column')
     parser.add_argument('-c', type=str, default=None, help='Show info about column')
     parser.add_argument('-v', type=str, default=None, help='Show value counts for column')
@@ -112,6 +166,9 @@ def main():
     parser.add_argument('-l', action='store_true', help='List columns')
     parser.add_argument('-i', action='store_true', help='Show file info')
     args = parser.parse_args()
+
+    terminal_size = shutil.get_terminal_size((80, 24))
+    pd.set_option('display.width', terminal_size.columns)
 
     df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr, force_format=args.f)
 
@@ -125,6 +182,10 @@ def main():
         print_tail(df, args.T)
     if args.R:
         print_range(df, args.R[0], args.R[1])
+    if args.L:
+        print_loc(df, args.L)
+    if args.I:
+        print_iloc(df, args.I)
     if args.u:
         print_unique(df, args.u)
     if args.c:
@@ -134,7 +195,7 @@ def main():
     if args.s:
         print_stats(df, args.s)
     # Default: show info and head if no options
-    if not any([args.i, args.l, args.H, args.T, args.R, args.u, args.c, args.v, args.s]):
+    if not any([args.i, args.l, args.H, args.T, args.R, args.L, args.I, args.u, args.c, args.v, args.s]):
         print_info(df)
         print_head(df, 5)
 
