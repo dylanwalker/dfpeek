@@ -146,7 +146,7 @@ dfpeek data.feather
 
 Use a specific Excel sheet (e.g., the 3rd sheet):
 ```powershell
-dfpeek data.xlsx -xs 3 -h 10
+dfpeek data.xlsx -xs 3 -H 10
 ```
 
 Skip the first 2 rows of an excel file:
