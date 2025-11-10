@@ -49,63 +49,50 @@ def print_tail(df, n):
 def print_range(df, start, end):
     print(df.iloc[start:end])
 
-def print_loc(df, locstring):
-    """Execute df.loc[locstring] safely"""
+def apply_loc(df, locstring):
+    """Apply df.loc[locstring] and return the subset"""
     try:
-        # Replace 'df.' with the actual dataframe variable in the expression
-        # This allows expressions like 'df.somecol=="somestring"'
-        if 'df.' in locstring:
-            # Create a safe namespace with only the dataframe
-            namespace = {'df': df}
-            # Evaluate the expression
-            result = eval(locstring, {"__builtins__": {}}, namespace)
-            # Apply the result to df.loc
-            subset = df.loc[result]
-        else:
-            # Direct indexing like '0:5', ':10', etc.
-            subset = df.loc[eval(locstring)]
-        
-        # Print with full display options
-        print(subset)
-        
+        namespace = {'df': df}
+        code = f"df.loc[{locstring}]"
+        return eval(code, {"__builtins__": {}}, namespace)
     except Exception as e:
         print(f"Error in loc expression '{locstring}': {e}")
         print("Examples:")
         print("  Rows: '0:5', 'df.age > 25', 'df.name == \"Alice\"'")
         print("  Columns: ':, \"name\"', ':, [\"name\", \"age\"]'")
-        print("  Both: '0:5, \"name\":\"city\"', 'df.age > 25, [\"name\", \"status\"]'")
+        print("  Both: ':, \"name\":\"city\"', 'df.age > 25, [\"name\", \"status\"]'")
+        sys.exit(1)
 
-def print_iloc(df, ilocstring):
-    """Execute df.iloc[ilocstring] safely"""
+def apply_iloc(df, ilocstring):
+    """Apply df.iloc[ilocstring] and return the subset"""
     try:
-        # Handle slice notation by converting to proper Python syntax
         if ':' in ilocstring and not ilocstring.startswith('[') and ',' not in ilocstring:
-            # Simple slice like '0:5' -> slice(0, 5)
             parts = ilocstring.split(':')
             if len(parts) == 2:
                 start = int(parts[0]) if parts[0] else None
                 end = int(parts[1]) if parts[1] else None
-                subset = df.iloc[start:end]
+                return df.iloc[start:end]
             else:
-                # More complex slice, evaluate normally
-                subset = df.iloc[eval(ilocstring)]
+                return df.iloc[eval(ilocstring)]
         else:
-            # Evaluate the iloc expression normally
-            subset = df.iloc[eval(ilocstring)]
-        
-        # Print with full display options
-        pd.set_option('display.max_rows', None)
-        pd.set_option('display.max_columns', None)
-        print(subset)
-        pd.reset_option('display.max_rows')
-        pd.reset_option('display.max_columns')
-        
+            return df.iloc[eval(ilocstring)]
     except Exception as e:
         print(f"Error in iloc expression '{ilocstring}': {e}")
         print("Examples:")
         print("  Rows: '0:5', '[0,2,4]', '0:10:2'")
         print("  Columns: ':, 0', ':, [0,2]', ':, 0:3'")
         print("  Both: '0:5, 0:3', '[0,2,4], [1,3]'")
+        sys.exit(1)
+
+def print_loc(df, locstring):
+    """Execute df.loc[locstring] safely"""
+    subset = apply_loc(df, locstring)
+    print(subset)
+
+def print_iloc(df, ilocstring):
+    """Execute df.iloc[ilocstring] safely"""
+    subset = apply_iloc(df, ilocstring)
+    print(subset)
 
 def print_unique(df, col):
     if col not in df.columns:
@@ -166,9 +153,33 @@ def main():
     terminal_size = shutil.get_terminal_size((80, 24))
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_colwidth', None)
     pd.set_option('display.width', terminal_size.columns)
 
     df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr, force_format=args.f)
+
+    # Chain loc and iloc operations in the order they appear in sys.argv
+    loc_iloc_ops = []
+    i = 0
+    while i < len(sys.argv):
+        if sys.argv[i] == '-L' and i + 1 < len(sys.argv):
+            loc_iloc_ops.append(('loc', sys.argv[i + 1]))
+            i += 2
+        elif sys.argv[i] == '-I' and i + 1 < len(sys.argv):
+            loc_iloc_ops.append(('iloc', sys.argv[i + 1]))
+            i += 2
+        else:
+            i += 1
+    
+    # Apply loc/iloc operations in order
+    for op_type, op_value in loc_iloc_ops:
+        if op_type == 'loc':
+            df = apply_loc(df, op_value)
+        else:
+            df = apply_iloc(df, op_value)
+
+    # Track if any operation was performed
+    any_operation = any([args.i, args.l, args.H, args.T, args.R, args.L, args.I, args.u, args.c, args.v, args.s])
 
     if args.i:
         print_info(df)
@@ -180,9 +191,11 @@ def main():
         print_tail(df, args.T)
     if args.R:
         print_range(df, args.R[0], args.R[1])
-    if args.L:
+    if loc_iloc_ops:
+        print(df)  # Print the final result of chained operations
+    elif args.L:
         print_loc(df, args.L)
-    if args.I:
+    elif args.I:
         print_iloc(df, args.I)
     if args.u:
         print_unique(df, args.u)
@@ -193,7 +206,7 @@ def main():
     if args.s:
         print_stats(df, args.s)
     # Default: show info and head if no options
-    if not any([args.i, args.l, args.H, args.T, args.R, args.L, args.I, args.u, args.c, args.v, args.s]):
+    if not any_operation:
         print_info(df)
         print_head(df, 5)
 

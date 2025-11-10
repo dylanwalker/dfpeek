@@ -1,6 +1,6 @@
 [project]
 name = "dfpeek"
-version = "0.1.7"
+version = "0.1.8"
 description = "Peek into a dataframe from the command line"
 authors = [{ name="Dylan Walker", email="dylan.travis.walker@gmail.com" }]
 readme = "README.md"
