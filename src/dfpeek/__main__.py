@@ -146,6 +146,7 @@ def main():
     parser.add_argument('-c', type=str, default=None, help='Show info about column')
     parser.add_argument('-v', type=str, default=None, help='Show value counts for column')
     parser.add_argument('-s', type=str, default=None, help='Show stats for numerical column')
+    parser.add_argument('-w', action='store_true', help="Show full column width without truncation")
     parser.add_argument('-l', action='store_true', help='List columns')
     parser.add_argument('-i', action='store_true', help='Show file info')
     args = parser.parse_args()
@@ -153,9 +154,10 @@ def main():
     terminal_size = shutil.get_terminal_size((80, 24))
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_colwidth', None)
     pd.set_option('display.width', terminal_size.columns)
-
+    if args.w:
+        pd.set_option('display.max_colwidth', None)
+    
     df = load_df(args.datafile, delimiter=args.d, excel_sheet=args.xs, excel_skiprows=args.xr, force_format=args.f)
 
     # Chain loc and iloc operations in the order they appear in sys.argv
